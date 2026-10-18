@@ -1,6 +1,5 @@
 import streamlit as st
 
-# Thiết lập cấu hình trang
 st.set_page_config(
     page_title="Phần mềm Căn chỉnh Đồng tâm Trục - Rim & Face",
     layout="centered",
@@ -12,7 +11,6 @@ st.write(
     " trên điện thoại/web."
 )
 
-# 1. KHỞI TẠO TRẠNG THÁI VÀ HÀM HỖ TRỢ
 if "active_field" not in st.session_state:
   st.session_state.active_field = "a1"
 
@@ -32,8 +30,6 @@ def get_weight(field):
   return "bold" if active == field else "normal"
 
 
-# --- 2. Chọn cách gá ---
-st.subheader("0. Chọn cách gá đồng hồ so")
 setup_type = st.radio(
     "Chọn phương án gá đặt:",
     options=[1, 2],
@@ -44,76 +40,53 @@ setup_type = st.radio(
     ),
 )
 
-# --- 3. VẼ SƠ ĐỒ ĐỘNG (SVG) ---
-# Đã sửa lỗi thành active.upper() chuẩn Python
 svg_html = f"""
 <div style="text-align: center; background-color: #f8f9fa; padding: 10px; border-radius: 10px; border: 1px solid #ddd;">
 <svg width="100%" height="240" viewBox="0 0 500 220" style="max-width: 500px;">
-    <!-- Mặt đồng hồ RIM (a) -->
     <g transform="translate(130, 110)">
         <circle cx="0" cy="0" r="65" fill="white" stroke="black" stroke-width="2"/>
         <text x="0" y="-80" font-size="13" font-weight="bold" text-anchor="middle" fill="#008000">Mặt đồng hồ RIM (a)</text>
-        
-        <!-- a1 (12h) -->
         <circle cx="0" cy="-65" r="{6 if active=='a1' else 4}" fill="{get_color('a1')}"/>
         <text x="0" y="-48" font-size="{12 if active=='a1' else 10}" font-weight="{get_weight('a1')}" text-anchor="middle" fill="{get_color('a1')}">a1 (12h)</text>
-        
-        <!-- a2 (3h) -->
         <circle cx="65" cy="0" r="{6 if active=='a2' else 4}" fill="{get_color('a2')}"/>
         <text x="75" y="4" font-size="{12 if active=='a2' else 10}" font-weight="{get_weight('a2')}" text-anchor="start" fill="{get_color('a2')}">a2 (3h)</text>
-        
-        <!-- a3 (6h) -->
         <circle cx="0" cy="65" r="{6 if active=='a3' else 4}" fill="{get_color('a3')}"/>
         <text x="0" y="80" font-size="{12 if active=='a3' else 10}" font-weight="{get_weight('a3')}" text-anchor="middle" fill="{get_color('a3')}">a3 (6h)</text>
-        
-        <!-- a4 (9h) -->
         <circle cx="-65" cy="0" r="{6 if active=='a4' else 4}" fill="{get_color('a4')}"/>
         <text x="-75" y="4" font-size="{12 if active=='a4' else 10}" font-weight="{get_weight('a4')}" text-anchor="end" fill="{get_color('a4')}">a4 (9h)</text>
     </g>
-
-    <!-- Mặt đồng hồ FACE (b) -->
     <g transform="translate(370, 110)">
         <circle cx="0" cy="0" r="65" fill="white" stroke="black" stroke-width="2"/>
         <text x="0" y="-80" font-size="13" font-weight="bold" text-anchor="middle" fill="#800080">Mặt đồng hồ FACE (b)</text>
-        
-        <!-- b1 (12h) -->
         <circle cx="0" cy="-65" r="{6 if active=='b1' else 4}" fill="{get_color('b1')}"/>
         <text x="0" y="-48" font-size="{12 if active=='b1' else 10}" font-weight="{get_weight('b1')}" text-anchor="middle" fill="{get_color('b1')}">b1 (12h)</text>
-        
-        <!-- b2 (3h) -->
         <circle cx="65" cy="0" r="{6 if active=='b2' else 4}" fill="{get_color('b2')}"/>
         <text x="75" y="4" font-size="{12 if active=='b2' else 10}" font-weight="{get_weight('b2')}" text-anchor="start" fill="{get_color('b2')}">b2 (3h)</text>
-        
-        <!-- b3 (6h) -->
         <circle cx="0" cy="65" r="{6 if active=='b3' else 4}" fill="{get_color('b3')}"/>
         <text x="0" y="80" font-size="{12 if active=='b3' else 10}" font-weight="{get_weight('b3')}" text-anchor="middle" fill="{get_color('b3')}">b3 (6h)</text>
-        
-        <!-- b4 (9h) -->
         <circle cx="-65" cy="0" r="{6 if active=='b4' else 4}" fill="{get_color('b4')}"/>
         <text x="-75" y="4" font-size="{12 if active=='b4' else 10}" font-weight="{get_weight('b4')}" text-anchor="end" fill="{get_color('b4')}">b4 (9h)</text>
     </g>
 </svg>
-<p style="font-size: 13px; color: #555; margin-top: 5px;">💡 Vị trí đang chọn: <b style="color: red;">{active.upper()}</b> (Đang nhấp sáng trên sơ đồ)</p>
+<p style="font-size: 13px; color: #555; margin-top: 5px;">💡 Vị trí đang chọn: <b style="color: red;">{active.upper()}</b></p>
 </div>
 """
 
 st.markdown(svg_html, unsafe_allow_html=True)
 st.write("")
 
-# --- 4. Thông số hình học ---
 st.subheader("1. Thông số hình học (mm)")
-col1, col2, col3 = st.columns(3)
-with col1:
+c1, c2, c3 = st.columns(3)
+with c1:
   L1_str = st.text_input("L1 (Từ khớp tới chân trước):", value="100")
-with col2:
+with c2:
   L2_str = st.text_input("L2 (Từ khớp tới chân sau):", value="300")
-with col3:
+with c3:
   D_str = st.text_input("D (Đường kính vòng quay / Khớp):", value="200")
 
-# --- 5. Đồng hồ Rim (Hướng kính) ---
 st.subheader("2. Đồng hồ Hướng kính (RIM - a) (mm)")
-r_col1, r_col2 = st.columns(2)
-with r_col1:
+rc1, rc2 = st.columns(2)
+with rc1:
   a1_str = st.text_input(
       "a1 (12h):",
       value="0",
@@ -128,7 +101,7 @@ with r_col1:
       args=("a3",),
       key="input_a3",
   )
-with r_col2:
+with rc2:
   a2_str = st.text_input(
       "a2 (3h):",
       value="0",
@@ -144,10 +117,9 @@ with r_col2:
       key="input_a4",
   )
 
-# --- 6. Đồng hồ Face (Mặt bích) ---
 st.subheader("3. Đồng hồ Mặt bích (FACE - b) (mm)")
-f_col1, f_col2 = st.columns(2)
-with f_col1:
+fc1, fc2 = st.columns(2)
+with fc1:
   b1_str = st.text_input(
       "b1 (12h):",
       value="0",
@@ -162,7 +134,7 @@ with f_col1:
       args=("b3",),
       key="input_b3",
   )
-with f_col2:
+with fc2:
   b2_str = st.text_input(
       "b2 (3h):",
       value="0",
@@ -179,27 +151,27 @@ with f_col2:
   )
 
 
-# Hàm chuyển đổi dữ liệu an toàn
 def parse_val(val):
   return float(val.strip().replace(",", "."))
 
 
-# --- 7. Nút Tính toán & Xử lý kết quả ---
 if st.button("🚀 TÍNH TOÁN KẾT QUẢ", type="primary", use_container_width=True):
   try:
     L1 = parse_val(L1_str)
     L2 = parse_val(L2_str)
     D = parse_val(D_str)
-
-    a1 = parse_val(a1_str)
-    a2 = parse_val(a2_str)
-    a3 = parse_val(a3_str)
-    a4 = parse_val(a4_str)
-
-    b1 = parse_val(b1_str)
-    b2 = parse_val(b2_str)
-    b3 = parse_val(b3_str)
-    b4 = parse_val(b4_str)
+    a1, a2, a3, a4 = (
+        parse_val(a1_str),
+        parse_val(a2_str),
+        parse_val(a3_str),
+        parse_val(a4_str),
+    )
+    b1, b2, b3, b4 = (
+        parse_val(b1_str),
+        parse_val(b2_str),
+        parse_val(b3_str),
+        parse_val(b4_str),
+    )
 
     if setup_type == 1:
       diff_b_vert = b3 - b1
@@ -217,27 +189,20 @@ if st.button("🚀 TÍNH TOÁN KẾT QUẢ", type="primary", use_container_width
     xb2 = xa + (diff_b_horiz / D) * L2
 
     st.success(f"Đã tính toán thành công (Cách gá {setup_type})!")
-
-    # Hiển thị kết quả chi tiết
     st.markdown("### 📊 Kết quả hiệu chỉnh chi tiết")
 
     st.markdown("#### 1. Phương đứng (VERTICAL - Căn đệm Shim):")
     st.code(
-        f"• Chân trước (L1): {yb1:+.3f} mm\n"
-        f"  ➔ {'Thêm lá căn dày ' + f'{abs(yb1):.3f}' if yb1 >= 0 else 'Rút bớt lá căn ' + f'{abs(yb1):.3f}'} mm\n\n"
-        f"• Chân sau (L2):   {yb2:+.3f} mm\n"
-        f"  ➔ {'Thêm lá căn dày ' + f'{abs(yb2):.3f}' if yb2 >= 0 else 'Rút bớt lá căn ' + f'{abs(yb2):.3f}'} mm"
+        f"• Chân trước (L1): {yb1:+.3f} mm\n  ➔ {'Thêm lá căn dày ' + f'{abs(yb1):.3f}' if yb1 >= 0 else 'Rút bớt lá căn ' + f'{abs(yb1):.3f}'} mm\n\n• Chân sau (L2):   {yb2:+.3f} mm\n  ➔ {'Thêm lá căn dày ' + f'{abs(yb2):.3f}' if yb2 >= 0 else 'Rút bớt lá căn ' + f'{abs(yb2):.3f}'} mm"
     )
 
     st.markdown("#### 2. Phương ngang (HORIZONTAL - Dịch chuyển):")
     st.code(
-        f"• Chân trước (L1): {xb1:+.3f} mm\n"
-        f"  ➔ {'Dịch chuyển sang phải ' + f'{abs(xb1):.3f}' if xb1 >= 0 else 'Dịch chuyển sang trái ' + f'{abs(xb1):.3f}'} mm\n\n"
-        f"• Chân sau (L2):   {xb2:+.3f} mm\n"
-        f"  ➔ {'Dịch chuyển sang phải ' + f'{abs(xb2):.3f}' if xb2 >= 0 else 'Dịch chuyển sang trái ' + f'{abs(xb2):.3f}'} mm"
+        f"• Chân trước (L1): {xb1:+.3f} mm\n  ➔ {'Dịch chuyển sang phải ' + f'{abs(xb1):.3f}' if xb1 >= 0 else 'Dịch chuyển sang trái ' + f'{abs(xb1):.3f}'} mm\n\n• Chân sau (L2):   {xb2:+.3f} mm\n  ➔ {'Dịch chuyển sang phải ' + f'{abs(xb2):.3f}' if xb2 >= 0 else 'Dịch chuyển sang trái ' + f'{abs(xb2):.3f}'} mm"
     )
 
   except ValueError:
     st.error(
         "⚠️ Vui lòng kiểm tra lại dữ liệu đầu vào! Đảm bảo tất cả các ô đều"
-        " là số hợp
+        " là số hợp lệ."
+    )
