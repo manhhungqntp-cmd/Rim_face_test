@@ -12,7 +12,7 @@ st.write(
     " trên điện thoại/web."
 )
 
-# 1. KHỞI TẠO TRẠNG THÁI VÀ HÀM HỖ TRỢ (Đặt lên trên cùng để tránh lỗi NameError)
+# 1. KHỞI TẠO TRẠNG THÁI VÀ HÀM HỖ TRỢ
 if "active_field" not in st.session_state:
   st.session_state.active_field = "a1"
 
@@ -45,6 +45,7 @@ setup_type = st.radio(
 )
 
 # --- 3. VẼ SƠ ĐỒ ĐỘNG (SVG) ---
+# Đã sửa lỗi thành active.upper() chuẩn Python
 svg_html = f"""
 <div style="text-align: center; background-color: #f8f9fa; padding: 10px; border-radius: 10px; border: 1px solid #ddd;">
 <svg width="100%" height="240" viewBox="0 0 500 220" style="max-width: 500px;">
@@ -92,7 +93,7 @@ svg_html = f"""
         <text x="-75" y="4" font-size="{12 if active=='b4' else 10}" font-weight="{get_weight('b4')}" text-anchor="end" fill="{get_color('b4')}">b4 (9h)</text>
     </g>
 </svg>
-<p style="font-size: 13px; color: #555; margin-top: 5px;">💡 Vị trí đang chọn: <b style="color: red;">{active.toUpperCase()}</b> (Đang nhấp sáng trên sơ đồ)</p>
+<p style="font-size: 13px; color: #555; margin-top: 5px;">💡 Vị trí đang chọn: <b style="color: red;">{active.upper()}</b> (Đang nhấp sáng trên sơ đồ)</p>
 </div>
 """
 
@@ -239,5 +240,4 @@ if st.button("🚀 TÍNH TOÁN KẾT QUẢ", type="primary", use_container_width
   except ValueError:
     st.error(
         "⚠️ Vui lòng kiểm tra lại dữ liệu đầu vào! Đảm bảo tất cả các ô đều"
-        " là số hợp lệ."
-    )
+        " là số hợp
