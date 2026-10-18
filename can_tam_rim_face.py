@@ -1,3 +1,5 @@
+from datetime import datetime
+import pandas as pd
 import streamlit as st
 
 st.set_page_config(
@@ -11,8 +13,12 @@ st.write(
     " trên điện thoại/web."
 )
 
+# Khởi tạo session state cho vị trí input active và lịch sử
 if "active_field" not in st.session_state:
   st.session_state.active_field = "a1"
+
+if "history" not in st.session_state:
+  st.session_state.history = []
 
 
 def set_active(field_name):
@@ -30,6 +36,18 @@ def get_weight(field):
   return "bold" if active == field else "normal"
 
 
+# --- THÔNG TIN NGƯỜI DÙNG & GHI CHÚ ---
+st.subheader("👤 Thông tin kỹ thuật viên & Ghi chú")
+u_col1, u_col2 = st.columns(2)
+with u_col1:
+  tech_name = st.text_input("Họ tên người thực hiện:", value="Nguyễn Mạnh Hùng")
+with u_col2:
+  feedback_note = st.text_input(
+      "Ý kiến phản hồi / Ghi chú (nếu có):", value=""
+  )
+
+# --- 0. Chọn cách gá ---
+st.subheader("0. Chọn cách gá đồng hồ so")
 setup_type = st.radio(
     "Chọn phương án gá đặt:",
     options=[1, 2],
@@ -40,6 +58,7 @@ setup_type = st.radio(
     ),
 )
 
+# --- VẼ SƠ ĐỒ ĐỘNG (SVG) ---
 svg_html = f"""
 <div style="text-align: center; background-color: #f8f9fa; padding: 10px; border-radius: 10px; border: 1px solid #ddd;">
 <svg width="100%" height="240" viewBox="0 0 500 220" style="max-width: 500px;">
@@ -75,6 +94,7 @@ svg_html = f"""
 st.markdown(svg_html, unsafe_allow_html=True)
 st.write("")
 
+# --- 1. Thông số hình học ---
 st.subheader("1. Thông số hình học (mm)")
 c1, c2, c3 = st.columns(3)
 with c1:
@@ -84,6 +104,7 @@ with c2:
 with c3:
   D_str = st.text_input("D (Đường kính vòng quay / Khớp):", value="200")
 
+# --- 2. Đồng hồ Rim ---
 st.subheader("2. Đồng hồ Hướng kính (RIM - a) (mm)")
 rc1, rc2 = st.columns(2)
 with rc1:
@@ -117,6 +138,7 @@ with rc2:
       key="input_a4",
   )
 
+# --- 3. Đồng hồ Face ---
 st.subheader("3. Đồng hồ Mặt bích (FACE - b) (mm)")
 fc1, fc2 = st.columns(2)
 with fc1:
@@ -155,7 +177,8 @@ def parse_val(val):
   return float(val.strip().replace(",", "."))
 
 
-if st.button("🚀 TÍNH TOÁN KẾT QUẢ", type="primary", use_container_width=True):
+# --- 4. Nút Tính toán & Lưu thông tin ---
+if st.button("🚀 TÍNH TOÁN VÀ GHI NHẬN", type="primary", use_container_width=True):
   try:
     L1 = parse_val(L1_str)
     L2 = parse_val(L2_str)
@@ -188,7 +211,28 @@ if st.button("🚀 TÍNH TOÁN KẾT QUẢ", type="primary", use_container_width
     xb1 = xa + (diff_b_horiz / D) * L1
     xb2 = xa + (diff_b_horiz / D) * L2
 
-    st.success(f"Đã tính toán thành công (Cách gá {setup_type})!")
+    # Ghi nhận thời gian và lưu vào lịch sử phiên làm việc
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log_item = {
+        "Thời gian": current_time,
+        "Người thực hiện": tech_name if tech_name else "Không rõ",
+        "Cách gá": f"Cách gá {setup_type}",
+        "L1 (mm)": L1,
+        "L2 (mm)": L2,
+        "D (mm)": D,
+        "Chân trước đứng (mm)": round(yb1, 3),
+        "Chân sau đứng (mm)": round(yb2, 3),
+        "Chân trước ngang (mm)": round(xb1, 3),
+        "Chân sau ngang (mm)": round(xb2, 3),
+        "Phản hồi/Ghi chú": feedback_note if feedback_note else "Không có",
+    }
+    st.session_state.history.append(log_item)
+
+    st.success(
+        f"Đã tính toán thành công và ghi nhận lịch sử lúc {current_time}!"
+    )
+
+    # Hiển thị kết quả chi tiết
     st.markdown("### 📊 Kết quả hiệu chỉnh chi tiết")
 
     st.markdown("#### 1. Phương đứng (VERTICAL - Căn đệm Shim):")
@@ -206,3 +250,19 @@ if st.button("🚀 TÍNH TOÁN KẾT QUẢ", type="primary", use_container_width
         "⚠️ Vui lòng kiểm tra lại dữ liệu đầu vào! Đảm bảo tất cả các ô đều"
         " là số hợp lệ."
     )
+
+# --- HIỂN THỊ LỊCH SỬ VÀ TẢI XUỐNG BÁO CÁO ---
+if st.session_state.history:
+  st.markdown("---")
+  st.subheader("📋 Lịch sử ghi nhận trong phiên làm việc")
+  df_history = pd.DataFrame(st.session_state.history)
+  st.dataframe(df_history, use_container_width=True)
+
+  # Nút tải xuống file CSV
+  csv_data = df_history.to_csv(index=False).encode("utf-8-sig")
+  st.download_button(
+      label="📥 Tải xuống lịch sử báo cáo (CSV)",
+      data=csv_data,
+      file_name=f"lich_su_can_chinh_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+      mime="text/csv",
+  )
